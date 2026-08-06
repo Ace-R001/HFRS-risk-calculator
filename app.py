@@ -18,10 +18,22 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# ============ Load model ============
+# ============ Load model (cached) ============
 BASE = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE, 'final_model.pkl')
-fm = pickle.load(open(MODEL_PATH, 'rb'))
+
+
+@st.cache_resource(show_spinner='Loading model...')
+def load_model():
+    return pickle.load(open(MODEL_PATH, 'rb'))
+
+
+@st.cache_resource(show_spinner='Preparing explainer...')
+def load_explainer(model):
+    return shap.TreeExplainer(model)
+
+
+fm = load_model()
 model = fm['model']
 threshold = fm['threshold']
 
@@ -126,7 +138,7 @@ if st.button('Predict', type='primary'):
 
     # ============ SHAP Force Plot ============
     st.subheader('SHAP Force Plot Explanation')
-    explainer_shap = shap.TreeExplainer(model)
+    explainer_shap = load_explainer(model)
     shap_values = explainer_shap.shap_values(features_df)
     if isinstance(shap_values, list):
         shap_values = shap_values[1]
