@@ -29,8 +29,8 @@ def load_model():
 
 
 @st.cache_resource(show_spinner='Preparing explainer...')
-def load_explainer(model):
-    return shap.TreeExplainer(model)
+def load_explainer():
+    return shap.TreeExplainer(model)  # model 为全局, 不传参避免 hash 失败
 
 
 fm = load_model()
@@ -138,7 +138,7 @@ if st.button('Predict', type='primary'):
 
     # ============ SHAP Force Plot ============
     st.subheader('SHAP Force Plot Explanation')
-    explainer_shap = load_explainer(model)
+    explainer_shap = load_explainer()
     shap_values = explainer_shap.shap_values(features_df)
     if isinstance(shap_values, list):
         shap_values = shap_values[1]
