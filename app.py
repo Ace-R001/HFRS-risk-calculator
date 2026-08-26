@@ -45,9 +45,9 @@ TRAIN_RANGE = {
     'NEU%': (12.8, 90.1), 'NPR': (0.0, 3.6), 'Urine_output_24h': (10.0, 7430.0),
 }
 FEAT_NAMES = {
-    'CK': 'CK (U/L)', 'CK_MB': 'CK-MB (U/L)', 'CR': 'CR (\u03bcmol/L)',
+    'CK': 'CK (U/L)', 'CK_MB': 'CKMBa (U/L)', 'CR': 'CR (\u03bcmol/L)',
     'DD': 'D-dimer (ng/mL)', 'Hypotension': 'Hypotension',
-    'MYO': 'MYO (ng/mL)', 'NEU%': 'NEU% (%)', 'NPR': 'NPR',
+    'MYO': 'MYO (\u03bcg/L)', 'NEU%': 'Neutrophil percentage (%)', 'NPR': 'NPR',
     'Urine_output_24h': '24-h urine output (mL)',
 }
 display_names = [FEAT_NAMES[f] for f in FEATURES]
@@ -75,14 +75,14 @@ st.header('Patient Inputs')
 col1, col2, col3 = st.columns(3)
 with col1:
     ck = st.number_input('CK (U/L)', min_value=0.0, max_value=5000.0, value=146.1, step=5.0)
-    ck_mb = st.number_input('CK-MB (U/L)', min_value=0.0, max_value=500.0, value=37.5, step=1.0)
+    ck_mb = st.number_input('CKMBa (U/L)', min_value=0.0, max_value=500.0, value=37.5, step=1.0)
     cr = st.number_input('CR (\u03bcmol/L)', min_value=20.0, max_value=1500.0, value=223.7, step=5.0)
 with col2:
     dd = st.number_input('D-dimer (ng/mL)', min_value=0.0, max_value=25000.0, value=2000.7, step=10.0)
     hypotension = st.selectbox('Hypotension', options=[0, 1], format_func=lambda x: 'Yes' if x == 1 else 'No')
-    myo = st.number_input('MYO (ng/mL)', min_value=0.0, max_value=5000.0, value=88.7, step=5.0)
+    myo = st.number_input('MYO (\u03bcg/L)', min_value=0.0, max_value=5000.0, value=88.7, step=5.0)
 with col3:
-    neu_pct = st.number_input('NEU% (%)', min_value=10.0, max_value=100.0, value=63.8, step=0.5)
+    neu_pct = st.number_input('Neutrophil percentage (%)', min_value=10.0, max_value=100.0, value=63.8, step=0.5)
     npr = st.number_input('NPR', min_value=0.0, max_value=20.0, value=0.3, step=0.1,
                           help='Neutrophil-to-platelet ratio = NEU (×10⁹/L) / PLT (×10⁹/L)')
     urine = st.number_input('24-h urine output (mL)', min_value=0.0, max_value=8000.0, value=570.0, step=50.0)
@@ -120,7 +120,7 @@ if st.button('Predict', type='primary'):
 
     st.progress(min(prob_severe, 1.0))
     st.caption(f'Predicted probability of severe HFRS: {prob_severe*100:.1f}% | '
-               f'Fixed threshold \u03b8 = {threshold:.4f} (Youden index)')
+               f'Fixed threshold \u03b8 = {threshold:.3f} (Youden index)')
 
     if predicted_class == 1:
         st.error(
