@@ -104,8 +104,10 @@ if st.button('Predict', type='primary'):
     features = np.array([feature_values])
     features_df = pd.DataFrame(features, columns=FEATURES)
 
-    predicted_class = int(model.predict(features)[0])
     prob_severe = model.predict_proba(features)[0, 1]
+    # 使用锁定的 Youden 阈值 θ (=0.6119) 判定, 而非 sklearn 默认 0.5,
+    # 以与论文 Methods 及界面标注的 "Fixed threshold θ" 保持一致。
+    predicted_class = int(prob_severe >= threshold)
 
     # ============ Results display ============
     st.header('Prediction Result')
@@ -132,8 +134,7 @@ if st.button('Predict', type='primary'):
     else:
         st.success(
             f'**Low risk:** According to the model, this patient has a {(1-prob_severe)*100:.1f}% '
-            'probability of non-severe HFRS. Standard monitoring of renal function and '
-            'platelet count is recommended.'
+            'probability of non-severe HFRS.'
         )
 
     # ============ SHAP Force Plot ============
@@ -159,7 +160,8 @@ if st.button('Predict', type='primary'):
     plt.close()
     st.caption(
         f'Base value: {base_val:.3f} | Predicted probability f(x): {prob_severe:.3f}. '
-        'Red segments push the prediction toward severe HFRS; blue segments toward non-severe.'
+        'Red segments increase the model-predicted probability of severe HFRS, '
+        'whereas blue segments decrease it.'
     )
 
 # ============ Footer ============
@@ -167,7 +169,8 @@ st.markdown('---')
 st.markdown(
     '<p style="text-align: center; font-size: 14px;">'
     '<b>Disclaimer:</b> This tool uses a random forest model and nine routinely available clinical '
-    'variables at admission to provide an individualized estimate of severe HFRS risk for early '
-    'clinical decision support; it is not intended to replace professional medical judgment.</p>',
+    'variables obtained within the first 24 h after admission to estimate the probability of severe '
+    'HFRS. It is intended to support clinical assessment and should not be used as the sole basis '
+    'for diagnosis, treatment, or other clinical decisions.</p>',
     unsafe_allow_html=True
 )
