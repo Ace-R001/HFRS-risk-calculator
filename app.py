@@ -114,27 +114,26 @@ if st.button('Predict', type='primary'):
 
     c1, c2 = st.columns(2)
     with c1:
-        st.metric('Predicted Class',
-                  'Severe HFRS' if predicted_class == 1 else 'Non-severe HFRS',
-                  delta='High risk' if predicted_class == 1 else 'Low risk')
+        st.metric('Model classification',
+                  'Severe HFRS' if predicted_class == 1 else 'Non-severe HFRS')
     with c2:
         st.metric('Probability of Severe HFRS', f'{prob_severe*100:.1f}%')
 
     st.progress(min(prob_severe, 1.0))
-    st.caption(f'Predicted probability of severe HFRS: {prob_severe*100:.1f}% | '
-               f'Fixed threshold \u03b8 = {threshold:.3f} (Youden index)')
 
     if predicted_class == 1:
         st.error(
-            f'**High risk:** According to the model, this patient has a {prob_severe*100:.1f}% '
-            'probability of developing severe HFRS. Intensive monitoring of hemodynamics, '
-            'renal function, coagulation, and fluid balance is recommended. Early transfer '
-            'to intensive care should be considered.'
+            f'**Model classification: Severe HFRS.** The predicted probability of severe HFRS is '
+            f'**{prob_severe*100:.1f}%**, above the predefined classification threshold of '
+            f'**{threshold:.3f}**. Clinical interpretation should incorporate the patient\u2019s '
+            'overall condition and other relevant clinical information.'
         )
     else:
         st.success(
-            f'**Low risk:** According to the model, this patient has a {(1-prob_severe)*100:.1f}% '
-            'probability of non-severe HFRS.'
+            f'**Model classification: Non-severe HFRS.** The predicted probability of severe HFRS '
+            f'is **{prob_severe*100:.1f}%**, below the predefined classification threshold of '
+            f'**{threshold:.3f}**. Clinical interpretation should incorporate the patient\u2019s '
+            'overall condition and other relevant clinical information.'
         )
 
     # ============ SHAP Force Plot ============
